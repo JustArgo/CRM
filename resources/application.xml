@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!-- 引入db.properties -->
+	<context:property-placeholder location="classpath:db.properties"/>
+	<!-- 开启注解扫描 -->
+<!-- 	<context:component-scan base-package="com.pakin.pakin"/>  -->
+	<!-- 配置dataSource -->
+	 <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	 	
+		<property name="jdbcUrl" value="${db.url}"/>
+		<property name="driverClass" value="${db.driverClass}"/>
+		<property name="user" value="${db.username}"/>
+		<property name="password" value="${db.password}"/>
+	</bean>
+	<!-- 配置EntityManagerFactory -->
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="persistenceXmlLocation" value="classpath:/META-INF/persistence.xml"/>
+	</bean>
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+	</bean>
+	<!-- 配置事务模板 -->
+	<tx:advice id="txAdvice">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="list*" read-only="true"/>
+			<tx:method name="query*" read-only="true"/>
+			<tx:method name="*" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+	<!-- AOP相关配置 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* com.pakin.crm.service.*.*(..))" id="pc"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="pc"/>
+	</aop:config>
+	<!-- 配置aop日志 -->
+	<bean id="logUtil" class="com.pakin.crm.util.LogUtil"></bean>
+	 <aop:config>
+		<aop:pointcut expression="execution(* com.pakin.crm.service.*.*(..)) and !(execution(* com.pakin.crm.service.ILogService.*(..)))" id="logPointcut"/>
+		<aop:aspect ref="logUtil">
+			<aop:after method="writeLog" pointcut-ref="logPointcut"/>
+		</aop:aspect>
+	</aop:config> 
+</beans>

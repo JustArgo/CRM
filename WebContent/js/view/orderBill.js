@@ -1,0 +1,123 @@
+$(function(){
+//1,定义所需要的变量名
+	var orderDatagridAdd,orderDatagridEdit,orderDatagridDel,
+		orderDatagridRefresh,orderDialog,orderDatagrid,orderDialogForm,
+		orderCbDepts,orderSearch,orderDatagridTableForm,orderCbRoles,clearThis,orderDialogCbCustomers,orderDialogCbSeller;
+//2，获取变量所代表的标签
+	orderDatagridAdd=$("#order_datagrid_add");
+	orderDatagridEdit=$("#order_datagrid_edit");
+	orderDatagridDel=$("#order_datagrid_del");
+	orderDatagridRefresh=$("#order_datagrid_refresh");
+	orderDialog=$("#order_dialog");
+	orderDatagrid=$("#order_datagrid");
+	orderDialogForm=$("#order_dialog_form");
+	orderCbDepts=$(".order_cb_depts");
+	orderSearch=$("#order_search");
+	orderDatagridTableForm=$("#order_datagrid_table_form");
+	orderCbRoles=$("#order_cb_roles");
+	orderDialogCbCustomers=$("#order_dialog_cb_customers");
+	orderDialogCbSeller=$("#order_dialog_cb_seller");
+	clearThis=$(".clear_this");
+//3，统一管理方法
+	var cmdObject={
+			add:function(){
+				//清空表单数据
+				clearThis.val("");
+				orderDialog.dialog("open");
+				orderDialog.dialog("setTitle","新增");
+			},
+			edit:function(){
+				var rowData=orderDatagrid.datagrid("getSelected");
+				if(rowData){
+					clearThis.val("");
+				orderDialog.dialog("open");
+				orderDialog.dialog("setTitle","编辑");
+				//数据回显,特殊数据处理
+				rowData["dept.id"]=rowData.did;
+				orderDialogForm.form("load",rowData);
+				}else{
+					$.messager.alert("温馨提示","请选择要编辑的订单","info");
+				}
+			},
+			del:function(){
+				var rowData=orderDatagrid.datagrid("getSelected");
+				if(rowData){
+					$.messager.confirm("温馨提示","确定要删除该订单",function(yes){
+						if(yes){
+							$.get("/order_del",{id:rowData.id},function(data){
+								$.messager.alert("温馨提示,",data.msg,"info",function(){
+									if(data.success){
+										orderDatagrid.datagrid("load");
+									}
+								});
+							});
+						}
+					});
+					
+				}else{
+					$.messager.alert("温馨提示","请选择要删除的订单","info");
+				}
+				
+			},
+			refresh:function(){
+				orderDatagrid.datagrid("load");
+				$.messager.alert("温馨提示","刷新成功","info");
+			},
+			save:function(){
+				orderDialogForm.form("submit",{
+					url:"/order_save",
+					success:function(data){
+						data=$.parseJSON(data);
+						$.messager.alert("温馨提示,",data.msg,"info",function(){
+							if(data.success){
+								orderDialog.dialog("close");
+								orderDatagrid.datagrid("load");
+							}
+						});
+					}
+				});
+			},
+			cancel:function(){
+				orderDialog.dialog("close");
+			},
+			searchContent:function(){
+				var value={};
+				var fields=orderDatagridTableForm.serializeArray();
+				$.each(fields,function(index,field){
+					value[field.name]=field.value;
+				});
+				console.debug(value);
+				//把数据传输进去
+				orderDatagrid.datagrid("load",value);
+			}
+			
+	};
+	//调用管理的方法
+	$("a").on("click",function(){
+		if($(this).data("cmd")){
+		var func=$(this).data("cmd");
+		cmdObject[func]();
+		}
+	});
+	//定义对话框
+	orderDialog.dialog({
+		closable:true,
+		width:250,
+		height:240,
+		modal:true,
+		closed:true,
+		buttons:"#order_dialog_buttons"
+	});
+	//定义下拉选择框
+	orderDialogCbCustomers.combobox({
+		url:"/customer_queryForOrder",
+		valueField:"cid",
+		textField:"cname"
+	});
+	orderDialogCbSeller.combobox({
+		url:"/employee_queryForCustomer",
+		valueField:"eid",
+		textField:"ename"
+	});
+	
+});

@@ -1,0 +1,125 @@
+$(function(){
+//1,定义所需要的变量名
+	var planDatagridAdd,planDatagridEdit,planDatagridDel,
+		planDatagridRefresh,planDialog,planDatagrid,planDialogForm,
+		planCbDepts,planSearch,planDatagridTableForm,planCbRoles,clearThis,planDialogCbPotential;
+//2，获取变量所代表的标签
+	planDatagridAdd=$("#plan_datagrid_add");
+	planDatagridEdit=$("#plan_datagrid_edit");
+	planDatagridDel=$("#plan_datagrid_del");
+	planDatagridRefresh=$("#plan_datagrid_refresh");
+	planDialog=$("#plan_dialog");
+	planDatagrid=$("#plan_datagrid");
+	planDialogForm=$("#plan_dialog_form");
+	planCbDepts=$(".plan_cb_depts");
+	planSearch=$("#plan_search");
+	planDatagridTableForm=$("#plan_datagrid_table_form");
+	planCbRoles=$("#plan_cb_roles");
+	clearThis=$(".clear_this");
+	planDialogCbPotential=$("#plan_dialog_cb_potential");
+//3，统一管理方法
+	var cmdObject={
+			add:function(){
+				//清空表单数据
+				clearThis.val("");
+				planDialog.dialog("open");
+				planDialog.dialog("setTitle","新增");
+			},
+			edit:function(){
+				var rowData=planDatagrid.datagrid("getSelected");
+				if(rowData){
+					clearThis.val("");
+				planDialog.dialog("open");
+				planDialog.dialog("setTitle","编辑");
+				//数据回显,特殊数据处理
+				rowData["potentialCustomer.id"]=rowData.potentialId;
+				rowData["potentialCustomer.name"]=rowData.potentialName;
+				planDialogForm.form("load",rowData);
+				}else{
+					$.messager.alert("温馨提示","请选择要编辑的员工","info");
+				}
+			},
+			del:function(){
+				var rowData=planDatagrid.datagrid("getSelected");
+				if(rowData){
+					$.messager.confirm("温馨提示","确定要删除该潜在客户",function(yes){
+						if(yes){
+							$.get("/plan_del",{id:rowData.id},function(data){
+								$.messager.alert("温馨提示,",data.msg,"info",function(){
+									if(data.success){
+										planDatagrid.datagrid("load");
+									}
+								});
+							});
+						}
+					});
+					
+				}else{
+					$.messager.alert("温馨提示","请选择要删除的潜在客户","info");
+				}
+				
+			},
+			refresh:function(){
+				planDatagrid.datagrid("load");
+				$.messager.alert("温馨提示","刷新成功","info");
+			},
+			save:function(){
+				planDialogForm.form("submit",{
+					url:"/plan_save",
+					success:function(data){
+						data=$.parseJSON(data);
+						$.messager.alert("温馨提示,",data.msg,"info",function(){
+							if(data.success){
+								planDialog.dialog("close");
+								planDatagrid.datagrid("load");
+							}
+						});
+					}
+				});
+			},
+			cancel:function(){
+				planDialog.dialog("close");
+			},
+			searchContent:function(){
+				var value={};
+				var fields=planDatagridTableForm.serializeArray();
+				$.each(fields,function(index,field){
+					value[field.name]=field.value;
+				});
+				console.debug(value);
+				//把数据传输进去
+				planDatagrid.datagrid("load",value);
+			}
+			
+	};
+	//调用管理的方法
+	$("a").on("click",function(){
+		if($(this).data("cmd")){
+		var func=$(this).data("cmd");
+		cmdObject[func]();
+		}
+	});
+	//定义对话框
+	planDialog.dialog({
+		closable:true,
+		width:250,
+		height:240,
+		modal:true,
+		closed:true,
+		buttons:"#plan_dialog_buttons"
+	});
+	//定义下拉选择框
+	planDialogCbPotential.combobox({
+		url:"/potential_queryForPlan",
+		valueField:"pid",
+		textField:"pname"
+	});
+	//定义角色选择下拉框（可多选）
+	planCbRoles.combobox({
+		url:"/role_queryForEmp",
+		valueField:"rid",
+		textField:"rname",
+		multiple:true
+	});
+	
+});

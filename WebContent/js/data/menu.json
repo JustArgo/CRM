@@ -1,0 +1,50 @@
+[
+	
+	{"id":1,"text":"营销管理",
+		"children":[
+					{"id":11,"text":"潜在客户管理","attributes":{"url":"/pc"}
+					},
+					{"id":12,"text":"(潜在)客户开发计划","attributes":{"url":"/plan"}
+					}
+		]
+	},
+	{"id":2,"text":"客户管理",
+		"children":[
+					{"id":21,"text":"客户信息管理","attributes":{"url":"/customer"}
+					},
+					{"id":22,"text":"客户跟进历史","attributes":{"url":"/customerTrace"}
+					},
+					{"id":23,"text":"客户移交记录","attributes":{"url":"/customerTransfer"}
+					}
+					
+		]
+	},
+	{"id":3,"text":"系统管理",
+		"children":[
+					{"id":31,"text":"员工管理","attributes":{"url":"/employee"}
+					},
+					{"id":32,"text":"部门管理","attributes":{"url":"/department"}
+					},
+					{"id":34,"text":"系统角色管理","attributes":{"url":"/role"}
+					},
+					{"id":36,"text":"系统日志","attributes":{"url":"/log/index"}
+					}
+		]
+	},
+	{"id":4,"text":"订单管理",
+		"children":[
+					{"id":41,"text":"订单管理","attributes":{"url":"/order"}
+					}
+				   ]
+	},
+	{"id":5,"text":"统计报表",
+		"children":[
+					{"id":41,"text":"客户贡献分析","attributes":{"url":"/customerGX"}
+					},
+					{"id":42,"text":"客户构成分析","attributes":{"url":"/customerGC"}
+					},
+					{"id":42,"text":"员工客户分析","attributes":{"url":"/customerXs"}
+					}
+				   ]
+	}
+]

@@ -1,0 +1,123 @@
+$(function(){
+//1,定义所需要的变量名
+	var dictionaryDialog,dictionaryDatagrid,dictionaryDialogForm,
+		dictionaryCbDepts,dictionarySearch,dictionaryDatagridTableForm,dictionaryCbRoles,
+		clearThis,dictionaryDialogDatagridDetails;
+//2，获取变量所代表的标签
+	dictionaryDialog=$("#dictionary_dialog");
+	dictionaryDatagrid=$("#dictionary_datagrid");
+	dictionaryDialogForm=$("#dictionary_dialog_form");
+	dictionaryCbDepts=$(".dictionary_cb_depts");
+	dictionarySearch=$("#dictionary_search");
+	dictionaryDatagridTableForm=$("#dictionary_datagrid_table_form");
+	dictionaryCbRoles=$("#dictionary_cb_roles");
+	dictionaryDialogDatagridDetails=$("#dictionary_dialog_datagrid_details");
+	clearThis=$(".clear_this");
+//3，统一管理方法
+	var cmdObject={
+			add:function(){
+				//清空表单数据
+				clearThis.val("");
+				dictionaryDialog.dialog("open");
+				dictionaryDialog.dialog("setTitle","新增");
+			},
+			edit:function(){
+				var rowData=dictionaryDatagrid.datagrid("getSelected");
+				if(rowData){
+					clearThis.val("");
+				dictionaryDialog.dialog("open");
+				dictionaryDialog.dialog("setTitle","编辑");
+				//数据回显,特殊数据处理
+				rowData["dept.id"]=rowData.did;
+				dictionaryDialogForm.form("load",rowData);
+				}else{
+					$.messager.alert("温馨提示","请选择要编辑的员工","info");
+				}
+			},
+			del:function(){
+				var rowData=dictionaryDatagrid.datagrid("getSelected");
+				if(rowData){
+					$.messager.confirm("温馨提示","确定要删除该潜在客户",function(yes){
+						if(yes){
+							$.get("/dictionary_del",{id:rowData.id},function(data){
+								$.messager.alert("温馨提示,",data.msg,"info",function(){
+									if(data.success){
+										dictionaryDatagrid.datagrid("load");
+									}
+								});
+							});
+						}
+					});
+					
+				}else{
+					$.messager.alert("温馨提示","请选择要删除的潜在客户","info");
+				}
+				
+			},
+			refresh:function(){
+				dictionaryDatagrid.datagrid("load");
+				$.messager.alert("温馨提示","刷新成功","info");
+			},
+			save:function(){
+				dictionaryDialogForm.form("submit",{
+					url:"/dictionary_save",
+					success:function(data){
+						data=$.parseJSON(data);
+						$.messager.alert("温馨提示,",data.msg,"info",function(){
+							if(data.success){
+								dictionaryDialog.dialog("close");
+								dictionaryDatagrid.datagrid("load");
+							}
+						});
+					}
+				});
+			},
+			cancel:function(){
+				dictionaryDialog.dialog("close");
+			},
+			searchContent:function(){
+				var value={};
+				var fields=dictionaryDatagridTableForm.serializeArray();
+				$.each(fields,function(index,field){
+					value[field.name]=field.value;
+				});
+				console.debug(value);
+				//把数据传输进去
+				dictionaryDatagrid.datagrid("load",value);
+			},
+			addTetail:function(){
+				dictionaryDialogDatagridDetails.edatagrid("addRow");
+			}
+			
+	};
+	//调用管理的方法
+	$("a").on("click",function(){
+		if($(this).data("cmd")){
+		var func=$(this).data("cmd");
+		cmdObject[func]();
+		}
+	});
+	
+	//定义对话框
+	dictionaryDialog.dialog({
+		closable:true,
+		width:650,
+		height:540,
+		modal:true,
+		closed:true,
+		buttons:"#dictionary_dialog_buttons"
+	});
+	dictionaryDialogDatagridDetails.edatagrid({ 
+		saveUrl:'dictionary_save',
+        title:"字典明细",
+        fit:true,
+        fitColumns:true,
+	    toolbar:'#details_tb',
+		columns:[[    
+		          {field:'sn',title:'字典明细编号',editor:'text',width:100,align:'center'},    
+		          {field:'name',title:'字典明细名称',editor:'text',width:100,align:'center'},    
+		          {field:'intro',title:'字典明细简介',editor:'text',width:100,align:'center'}    
+		      ]]
+	});
+	dictionaryDialogDatagridDetails.edatagrid("addRow");
+});
