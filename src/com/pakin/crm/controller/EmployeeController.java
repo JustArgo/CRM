@@ -113,4 +113,13 @@ public class EmployeeController extends BaseController{
 		return employeeService.queryForCustomer();
 	}
 	
+	@RequestMapping("/employee_freezed")
+	@ResponseBody
+	pubilc Map<String,Object>(){
+	
+		return new HashMap<String,Object>();
+		
+	}
+	}
+	
 }
