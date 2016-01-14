@@ -116,12 +116,12 @@ public class EmployeeController extends BaseController{
 		return employeeService.queryForCustomer();
 	}
 	
-	@RequestMapping("/employee_shuffle")
+	@RequestMapping("/employee_freezed")
 	@ResponseBody
-	public Map<String,Object> shuffle(){
-		
+	pubilc Map<String,Object> freezed(){
+	
 		return new HashMap<String,Object>();
-		
+	
 	}
 	
 }
