@@ -115,7 +115,7 @@ public class EmployeeController extends BaseController{
 	
 	@RequestMapping("/employee_freezed")
 	@ResponseBody
-	pubilc Map<String,Object>(){
+	pubilc Map<String,Object> freezed(){
 	
 		return new HashMap<String,Object>();
 	
