@@ -22,6 +22,7 @@ import com.pakin.crm.service.IEmployeeService;
 @Controller
 public class EmployeeController extends BaseController{
 	
+	
 	@RequestMapping("/login")
 	@ResponseBody
 	public AjaxResult login(String username,String password,HttpServletRequest request){
@@ -32,7 +33,9 @@ public class EmployeeController extends BaseController{
 	@RequestMapping("/employee_list")
 	@ResponseBody
 	public Map<String,Object> list(EmployeeQueryObject qo){
-		return employeeService.query(qo);
+		Map<String,Object> map = new HashMap<String,Object>;
+		map = employeeService.query(qo)
+		return map;
 	}
 	@RequestMapping("/employee_save")
 	@ResponseBody
@@ -111,6 +114,14 @@ public class EmployeeController extends BaseController{
 	@ResponseBody
 	public List queryForCustomer(){
 		return employeeService.queryForCustomer();
+	}
+	
+	@RequestMapping("/employee_shuffle")
+	@ResponseBody
+	public Map<String,Object> shuffle(){
+		
+		return new HashMap<String,Object>();
+		
 	}
 	
 }
