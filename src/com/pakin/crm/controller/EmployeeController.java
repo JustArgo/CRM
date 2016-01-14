@@ -118,8 +118,7 @@ public class EmployeeController extends BaseController{
 	pubilc Map<String,Object>(){
 	
 		return new HashMap<String,Object>();
-		
-	}
+	
 	}
 	
 }
